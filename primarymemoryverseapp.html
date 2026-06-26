@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026년 2기 유년 기억절</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Gowun Dodum', sans-serif;
+            background-color: #1a1a1a;
+            color: #4B6337;
+            overflow: hidden;
+            user-select: none;
+        }
+        .bg-cream { background-color: #f8f9f0; }
+        .text-primary { color: #4B6337; }
+        .text-secondary { color: #78a55a; }
+        .btn-green {
+            background-color: #78a55a;
+            color: white;
+            transition: all 0.2s;
+        }
+        .btn-green:hover { transform: scale(1.05); background-color: #4B6337; }
+        .main-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .screen {
+            width: 100%;
+            max-width: 1000px;
+            aspect-ratio: 16 / 9;
+            background-color: #f8f9f0;
+            border-radius: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 12px solid #000;
+        }
+        .title-font { font-family: 'Jua', sans-serif; }
+        .tree-svg { position: absolute; bottom: 10%; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+<div id="app" class="main-container">
+    <!-- Screen will be injected here -->
+</div>
+
+<script>
+    // PPT에서 추출한 실제 기억절 데이터 적용 (1과 ~ 13과)
+    const verseData = {
+        1: { title: "1과", text: "너희가 짐을 서로 지라 그리하여 그리스도의 법을 성취하라", ref: "갈라디아서 6:2" },
+        2: { title: "2과", text: "손님 대접하기를 잊지 말라 이로써 부지중에 천사들을 대접한 이들이 있었느니라", ref: "히브리서 13:2" },
+        3: { title: "3과", text: "그는 우리 각 사람에게서 멀리 계시지 아니하도다", ref: "사도행전 17:27" },
+        4: { title: "4과", text: "그가 너를 위하여 그의 천사들을 명령하사 네 모든 길에서 너를 지키게 하심이라", ref: "시편 91:11" },
+        5: { title: "5과", text: "하나님이 그 일곱째 날을 복되게 하사 거룩하게 하셨으니", ref: "창세기 2:3" },
+        6: { title: "6과", text: "다니엘이...하루 세 번씩 무릎을 꿇고 기도하며 그의 하나님께 감사하였더라", ref: "다니엘 6:10" },
+        7: { title: "7과", text: "나의 하나님이 이미 그의 천사를 보내어 사자들의 입을 봉하셨으므로", ref: "다니엘 6:22" },
+        8: { title: "8과", text: "그는 살아 계시는 하나님이시요 영원히 변하지 않으실 이시며", ref: "다니엘 6:26" },
+        9: { title: "9과", text: "이는 내 사랑하는 아들이요 내 기뻐하는 자라 하시니라", ref: "마태복음 3:17" },
+        10: { title: "10과", text: "네 마음을 다하며 목숨을 다하며 힘을 다하며 뜻을 다하여 주 너의 하나님을 사랑하고 또한 네 이웃을 네 자신 같이 사랑하라 하였나이다", ref: "누가복음 10:27" },
+        11: { title: "11과", text: "이 내 아들은 죽었다가 다시 살아났으며 내가 잃었다가 다시 얻었노라 하니", ref: "누가복음 15:24" },
+        12: { title: "12과", text: "그런즉 깨어 있으라 너희는 그 날과 그 때를 알지 못하느니라", ref: "마태복음 25:13" },
+        13: { title: "13과", text: "너희가 여기 내 형제 중에 지극히 작은 자 하나에게 한 것이 곧 내게 한 것이니라 하시고", ref: "마태복음 25:40" }
+    };
+
+    const state = {
+        currentView: 'home', // home, menu, detail, verse, blank, animation
+        selectedLesson: null,
+        blankMode: 0 // 0: none, 1: partial, 2: hidden
+    };
+
+    function render() {
+        const app = document.getElementById('app');
+        let content = '';
+
+        if (state.currentView === 'home') {
+            content = renderHome();
+        } else if (state.currentView === 'menu') {
+            content = renderMenu();
+        } else if (state.currentView === 'detail') {
+            content = renderDetail();
+        } else if (state.currentView === 'verse') {
+            content = renderVerse();
+        } else if (state.currentView === 'blank') {
+            content = renderBlank();
+        } else if (state.currentView === 'animation') {
+            content = renderAnimation();
+        }
+
+        app.innerHTML = `<div class="screen">${content}</div>`;
+    }
+
+    function renderHome() {
+        return `
+            <div class="text-center">
+                <h1 class="title-font text-8xl text-primary mb-4 leading-tight">2026년<br><span class="text-secondary">2기 유년 기억절</span></h1>
+                <p class="text-secondary text-2xl font-bold mt-8">2회 명언암송대회 암송범위</p>
+                <button onclick="navigate('menu')" class="mt-12 btn-green px-12 py-4 rounded-full text-3xl font-bold title-font shadow-lg">시작하기</button>
+            </div>
+            <div class="tree-svg left-10 w-24">${treeIcon('#78a55a')}</div>
+            <div class="tree-svg right-10 w-24">${treeIcon('#8cb76c')}</div>
+        `;
+    }
+
+    function renderMenu() {
+        let grid = '';
+        for (let i = 1; i <= 13; i++) {
+            grid += `<button onclick="selectLesson(${i})" class="btn-green rounded-2xl text-3xl font-bold title-content aspect-square flex items-center justify-center">${i}과</button>`;
+        }
+        return `
+            <div class="w-full h-full p-12 flex flex-col items-center">
+                <div class="grid grid-cols-7 gap-4 w-full max-w-4xl mb-12">
+                    ${grid}
+                </div>
+                <div class="flex gap-8 mt-auto">
+                    <button onclick="navigate('home')" class="bg-gray-400 text-white px-8 py-3 rounded-xl text-xl font-bold hover:bg-gray-500 transition">첫화면</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderDetail() {
+        const lesson = verseData[state.selectedLesson];
+        return `
+            <h2 class="title-font text-6xl text-primary mb-12">${lesson.title}</h2>
+            <div class="flex flex-col gap-6 w-64">
+                <button onclick="navigate('verse')" class="btn-green py-5 rounded-2xl text-3xl font-bold">기억절</button>
+                <button onclick="navigate('blank')" class="btn-green py-5 rounded-2xl text-3xl font-bold">빈칸</button>
+                <button onclick="navigate('animation')" class="btn-green py-5 rounded-2xl text-3xl font-bold">애니메이션</button>
+            </div>
+            <button onclick="navigate('menu')" class="absolute bottom-10 right-10 bg-gray-400 text-white px-8 py-3 rounded-xl text-xl font-bold">돌아가기</button>
+        `;
+    }
+
+    function renderVerse() {
+        const lesson = verseData[state.selectedLesson];
+        return `
+            <div class="p-20 text-center flex flex-col items-center justify-center w-full h-full">
+                <h3 class="text-3xl font-bold text-secondary mb-8">[ ${lesson.title} 기억절 ]</h3>
+                <p class="text-5xl leading-tight text-primary font-bold mb-10 break-keep">"${lesson.text}"</p>
+                <p class="text-3xl text-secondary">(${lesson.ref})</p>
+            </div>
+            <button onclick="navigate('detail')" class="absolute bottom-10 right-10 bg-gray-400 text-white px-8 py-3 rounded-xl text-xl font-bold">돌아가기</button>
+        `;
+    }
+
+    function renderBlank() {
+        const lesson = verseData[state.selectedLesson];
+        const words = lesson.text.split(' ');
+        
+        const displayVerses = words.map((word, idx) => {
+            const shouldHide = (state.blankMode === 1 && idx % 3 === 0) || (state.blankMode === 2 && idx % 2 === 0);
+            
+            if (shouldHide && state.blankMode !== 0) {
+                // 문장 부호를 제외한 순수 글자 수를 기준으로 입력창 크기를 조절합니다.
+                const cleanLen = word.replace(/[.,!?]/g, '').length;
+                const width = Math.max(cleanLen, 2) + 2; // 최소 너비 보장
+                
+                return `<input type="text" 
+                               data-answer="${word}" 
+                               oninput="checkWord(this)"
+                               class="mx-1 text-center border-b-4 border-secondary bg-secondary/20 outline-none focus:border-primary text-primary transition-all duration-300 rounded-t-lg font-bold pb-1"
+                               style="width: ${width}ch;"
+                               autocomplete="off" spellcheck="false"
+                        />`;
+            } else {
+                return `<span class="mx-1 py-1">${word}</span>`;
+            }
+        }).join('');
+
+        return `
+            <div class="p-10 text-center flex flex-col items-center justify-center w-full h-full">
+                <h3 class="text-3xl font-bold text-secondary mb-8">[ 빈칸 채우기 ]</h3>
+                <div class="text-4xl md:text-5xl leading-loose text-primary font-bold mb-10 flex flex-wrap justify-center items-end gap-x-2 gap-y-6 max-w-4xl break-keep">
+                    ${displayVerses}
+                </div>
+                <div class="flex gap-4 justify-center mt-auto">
+                    <button onclick="setBlank(0)" class="px-6 py-2 rounded-lg font-bold ${state.blankMode === 0 ? 'bg-primary text-white' : 'bg-white text-primary border border-primary'}">전체보기</button>
+                    <button onclick="setBlank(1)" class="px-6 py-2 rounded-lg font-bold ${state.blankMode === 1 ? 'bg-primary text-white' : 'bg-white text-primary border border-primary'}">단계 1</button>
+                    <button onclick="setBlank(2)" class="px-6 py-2 rounded-lg font-bold ${state.blankMode === 2 ? 'bg-primary text-white' : 'bg-white text-primary border border-primary'}">단계 2</button>
+                </div>
+            </div>
+            <button onclick="navigate('detail')" class="absolute bottom-10 right-10 bg-gray-400 text-white px-8 py-3 rounded-xl text-xl font-bold">돌아가기</button>
+        `;
+    }
+
+    function renderAnimation() {
+        return `
+            <div class="text-center p-20 flex flex-col items-center justify-center w-full h-full">
+                <div class="w-40 h-40 bg-secondary/20 rounded-full mx-auto flex items-center justify-center animate-bounce mb-10">
+                    <span class="text-5xl">🎬</span>
+                </div>
+                <h2 class="text-4xl font-bold text-primary">애니메이션 준비 중</h2>
+                <p class="text-xl text-secondary mt-4">영상을 불러오는 중입니다...</p>
+            </div>
+            <button onclick="navigate('detail')" class="absolute bottom-10 right-10 bg-gray-400 text-white px-8 py-3 rounded-xl text-xl font-bold">돌아가기</button>
+        `;
+    }
+
+    // Helpers
+    function navigate(view) {
+        state.currentView = view;
+        if(view !== 'blank') state.blankMode = 0;
+        render();
+    }
+
+    function selectLesson(num) {
+        state.selectedLesson = num;
+        state.currentView = 'detail';
+        render();
+    }
+
+    function setBlank(val) {
+        state.blankMode = val;
+        render();
+    }
+
+    function treeIcon(color) {
+        return `
+            <svg viewBox="0 0 100 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50 10C25 10 5 45 5 90C5 135 25 170 50 170C75 170 95 135 95 90C95 45 75 10 50 10Z" fill="${color}" fill-opacity="0.8"/>
+                <rect x="45" y="140" width="10" height="60" fill="#5D3A1A"/>
+                <path d="M45 145L25 130" stroke="#5D3A1A" stroke-width="6" stroke-linecap="round"/>
+                <path d="M55 130L75 115" stroke="#5D3A1A" stroke-width="6" stroke-linecap="round"/>
+            </svg>
+        `;
+    }
+
+    function checkWord(inputEl) {
+        const answer = inputEl.getAttribute('data-answer');
+        const cleanAnswer = answer.replace(/[.,!?]/g, ''); // 정답 검사 시 문장부호 제거 허용
+        const val = inputEl.value.trim();
+        
+        // 기존 상태 클래스 초기화
+        inputEl.classList.remove('text-green-600', 'border-green-500', 'bg-green-100', 'text-red-500', 'border-red-500', 'bg-red-50', 'border-secondary', 'bg-secondary/20', 'text-primary');
+
+        if (val === '') {
+            // 빈칸일 경우 기본 상태
+            inputEl.classList.add('border-secondary', 'bg-secondary/20', 'text-primary');
+        } else if (val === answer || val === cleanAnswer) {
+            // 정답 (문장부호 포함/미포함 모두 허용)
+            inputEl.classList.add('text-green-600', 'border-green-500', 'bg-green-100');
+        } else {
+            // 오답
+            inputEl.classList.add('text-red-500', 'border-red-500', 'bg-red-50');
+        }
+    }
+
+    // Initial load
+    render();
+</script>
+
+</body>
+</html>
